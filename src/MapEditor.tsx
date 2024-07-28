@@ -2,88 +2,62 @@ import { useState, useEffect } from 'react'
 import {
   Tldraw,
   Editor,
-  AssetRecordType,
-  createShapeId,
-  TLImageShape,
-  TLShapeId,
+  TLPage,
 } from 'tldraw'
+import { Minimap } from './Minimap'
 
-import de_mirage from './assets/maps/de_mirage.png'
+// const MAP_OPTIONS = [
+//   { value: 'de_dust2', label: 'Dust II' },
+//   { value: 'de_mirage', label: 'Mirage' },
+//   { value: 'de_ancient', label: 'Ancient' },
+//   { value: 'de_anubis', label: 'Anubis' },
+//   { value: 'de_vertigo', label: 'Vertigo' },
+//   { value: 'de_inferno', label: 'Inferno' },
+//   { value: 'de_nuke', label: 'Nuke' },
+//   { value: 'de_overpass', label: 'Overpass' },
+// ]
 
 export function MapEditor() {
   const [editor, setEditor] = useState<Editor | null>(null)
-  const [imageShapeId, setImageShapeId] = useState<TLShapeId | null>(null)
 
   function onMount(editor: Editor) {
     setEditor(editor)
 
     editor.user.updateUserPreferences({ colorScheme: 'dark' })
+    console.log("Running onMount")
   }
 
-  // Set map as background
   useEffect(() => {
     if (!editor) return
+
+    const handlePageCreate = (page: TLPage) => {
+      const defaultMap = 'de_mirage'
+      Minimap.addToPage(editor, page.id, defaultMap)
+      // TODO: Find better way to ensure camera gets reset once minimap is loaded
+      setTimeout(() => {
+        resetCamera(editor)
+      }, 10)
+    }
+
+    // Attach handlers to page events
+    editor.sideEffects.registerAfterCreateHandler('page', (page) => {
+      console.log("Responding to page creation")
+      handlePageCreate(page)
+    })
 
     editor.updateInstanceState({ isDebugMode: false })
 
-    const assetId = AssetRecordType.createId()
-    editor.createAssets([
-      {
-        id: assetId,
-        type: 'image',
-        typeName: 'asset',
-        meta: {},
-        props: {
-          w: 2048,
-          h: 2048,
-          mimeType: 'image/png',
-          src: de_mirage,
-          name: 'de_mirage',
-          isAnimated: false,
-        }
-      }
-    ])
-    const shapeId = createShapeId()
-    editor.createShape<TLImageShape>({
-      id: shapeId,
-      type: 'image',
-      x: 0,
-      y: 0,
-      isLocked: true,
-      props: {
-        w: 1024,
-        h: 1024,
-        assetId,
-      }
-    })
+  }, [editor])
 
-    const cleanupKeepShapeLocked = editor.sideEffects.registerBeforeChangeHandler(
-      'shape',
-      (prev, next) => {
-        if (next.id !== shapeId) return next
-        if (next.isLocked) return next
-        return { ...prev, isLocked: true }
-      }
-    )
-
-    editor.clearHistory()
-    setImageShapeId(shapeId)
-
-    return () => {
-      cleanupKeepShapeLocked()
-    }
-  }, [de_mirage, editor])
-
-  useEffect(() => {
+  const resetCamera = (editor: Editor) => {
     if (!editor) return
-    if (!imageShapeId) return
 
     editor.setCameraOptions({
       constraints: {
         initialZoom: 'fit-max',
         baseZoom: 'default',
-        bounds: { w: 1024, h: 1024, x: 0, y: 0 },
-        padding: { x: 128, y: 128 },
+        bounds: { w: 2048, h: 2048, x: 0, y: 0 },
+        padding: { x: 64, y: 64 },
         origin: { x: 0.5, y: 0.5 },
         behavior: 'outside',
       },
@@ -93,12 +67,12 @@ export function MapEditor() {
       isLocked: false,
     })
     editor.setCamera(editor.getCamera(), { reset: true })
-  }, [editor, imageShapeId, de_mirage])
+  }
 
   return (
     <Tldraw
       onMount={onMount}
-
+      persistenceKey='test'
     />
   )
 }
