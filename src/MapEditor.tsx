@@ -3,19 +3,10 @@ import {
   Tldraw,
   Editor,
   TLPage,
+  TLComponents,
 } from 'tldraw'
 import { Minimap } from './Minimap'
-
-// const MAP_OPTIONS = [
-//   { value: 'de_dust2', label: 'Dust II' },
-//   { value: 'de_mirage', label: 'Mirage' },
-//   { value: 'de_ancient', label: 'Ancient' },
-//   { value: 'de_anubis', label: 'Anubis' },
-//   { value: 'de_vertigo', label: 'Vertigo' },
-//   { value: 'de_inferno', label: 'Inferno' },
-//   { value: 'de_nuke', label: 'Nuke' },
-//   { value: 'de_overpass', label: 'Overpass' },
-// ]
+import { MapSelector } from './MapSelector'
 
 export function MapEditor() {
   const [editor, setEditor] = useState<Editor | null>(null)
@@ -29,6 +20,7 @@ export function MapEditor() {
 
   useEffect(() => {
     if (!editor) return
+    console.log("In useEffect() for editor")
 
     const handlePageCreate = (page: TLPage) => {
       const defaultMap = 'de_mirage'
@@ -46,7 +38,7 @@ export function MapEditor() {
     })
 
     editor.updateInstanceState({ isDebugMode: false })
-
+    handlePageCreate(editor.getCurrentPage())
   }, [editor])
 
   const resetCamera = (editor: Editor) => {
@@ -69,10 +61,15 @@ export function MapEditor() {
     editor.setCamera(editor.getCamera(), { reset: true })
   }
 
+  const components: TLComponents = {
+    TopPanel: MapSelector,
+  }
+
   return (
     <Tldraw
       onMount={onMount}
       persistenceKey='test'
+      components={components}
     />
   )
 }

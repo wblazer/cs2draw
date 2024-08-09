@@ -1,4 +1,3 @@
-// Minimap.tsx
 import {
   Editor,
   AssetRecordType,
@@ -31,11 +30,27 @@ const MAP_ASSETS: Record<string, string> = {
 
 export const Minimap = {
   addToPage: (editor: Editor, pageId: TLPageId, mapName: string) => {
-    const assetId = Minimap.createMapAsset(editor, mapName)
-    const mapShapeId = Minimap.createMapShape(editor, pageId, assetId)
-    Minimap.ensureMapStaysLocked(editor, mapShapeId)
+    const page = editor.getPage(pageId)
+    if (!page) return
 
-    return mapShapeId
+    const existingMapShapeId = page.meta.mapShapeId as TLShapeId | undefined
+    if (existingMapShapeId) {
+      console.log("Already a map on this page, skipping map creation: " + existingMapShapeId)
+      return
+    }
+
+    editor.run(
+      () => {
+        const assetId = Minimap.createMapAsset(editor, mapName)
+        const mapShapeId = Minimap.createMapShape(editor, pageId, assetId)
+        Minimap.ensureMapStaysLocked(editor, mapShapeId)
+        editor.updatePage({
+          id: pageId,
+          meta: { currentMap: mapName, mapShapeId: mapShapeId }
+        })
+      },
+      { history: 'ignore' }
+    )
   },
 
   updateOnPage: (editor: Editor, pageId: TLPageId, newMapName: string) => {
@@ -43,14 +58,19 @@ export const Minimap = {
     if (!page) return
 
     const mapShapeId = page.meta.mapShapeId as TLShapeId | undefined
+    console.log(mapShapeId)
 
     if (mapShapeId) {
       const newAssetId = Minimap.createMapAsset(editor, newMapName)
-      editor.updateShape<TLImageShape>({
-        id: mapShapeId,
-        type: 'image',
-        props: { assetId: newAssetId }
-      })
+
+      editor.run(() => {
+        editor.updateShape<TLImageShape>({
+          id: mapShapeId,
+          type: 'image',
+          props: { assetId: newAssetId }
+        })
+      }, { ignoreShapeLock: true, history: 'ignore' }
+      )
 
       editor.updatePage({
         id: pageId,
@@ -108,6 +128,9 @@ export const Minimap = {
     editor.sideEffects.registerBeforeChangeHandler(
       'shape',
       (prev, next) => {
+        console.log("In ensureMapStaysLocked")
+        console.log(prev)
+        console.log(next)
         if (next.id !== shapeId) return next
         if (next.isLocked) return next
         return { ...prev, isLocked: true }
