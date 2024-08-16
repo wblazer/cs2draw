@@ -14,34 +14,32 @@ export function MapEditor() {
   function onMount(editor: Editor) {
     setEditor(editor)
 
+    editor.updateInstanceState({ isDebugMode: false })
     editor.user.updateUserPreferences({ colorScheme: 'dark' })
-    console.log("Running onMount")
   }
 
   useEffect(() => {
     if (!editor) return
-    console.log("In useEffect() for editor")
 
     const handlePageCreate = (page: TLPage) => {
-      const defaultMap = 'de_mirage'
-      Minimap.addToPage(editor, page.id, defaultMap)
+      const map = editor.getCurrentPage().meta.currentMap as string || 'de_mirage'
+      Minimap.addToPage(editor, page.id, map)
       // TODO: Find better way to ensure camera gets reset once minimap is loaded
       setTimeout(() => {
         resetCamera(editor)
       }, 10)
     }
 
-    // Attach handlers to page events
+    // Attach handlers to page create events
     editor.sideEffects.registerAfterCreateHandler('page', (page) => {
-      console.log("Responding to page creation")
       handlePageCreate(page)
     })
 
-    editor.updateInstanceState({ isDebugMode: false })
+    // Run manually for first page
     handlePageCreate(editor.getCurrentPage())
   }, [editor])
 
-  const resetCamera = (editor: Editor) => {
+  function resetCamera(editor: Editor) {
     if (!editor) return
 
     editor.setCameraOptions({
@@ -68,7 +66,7 @@ export function MapEditor() {
   return (
     <Tldraw
       onMount={onMount}
-      persistenceKey='test'
+      persistenceKey="my-persistence-key"
       components={components}
     />
   )

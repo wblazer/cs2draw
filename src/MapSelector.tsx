@@ -7,22 +7,28 @@ import {
   TldrawUiDropdownMenuItem,
   TldrawUiButton,
   TldrawUiButtonIcon,
+  useValue,
 } from 'tldraw';
 import { Minimap } from './Minimap';
 
-const MAP_OPTIONS = [
-  { value: 'de_dust2', label: 'Dust II' },
-  { value: 'de_mirage', label: 'Mirage' },
-  { value: 'de_ancient', label: 'Ancient' },
-  { value: 'de_anubis', label: 'Anubis' },
-  { value: 'de_vertigo', label: 'Vertigo' },
-  { value: 'de_inferno', label: 'Inferno' },
-  { value: 'de_nuke', label: 'Nuke' },
-  { value: 'de_overpass', label: 'Overpass' },
-];
+const MAPS: Record<string, string> = {
+  'de_mirage': 'Mirage',
+  'de_ancient': 'Ancient',
+  'de_anubis': 'Anubis',
+  'de_vertigo': 'Vertigo',
+  'de_inferno': 'Inferno',
+  'de_nuke': 'Nuke',
+  'de_dust2': 'Dust II',
+  'de_overpass': 'Overpass',
+};
 
 export function MapSelector() {
   const editor = useEditor();
+
+  const currentMap = useValue('current map', () => {
+    const currentPage = editor.getCurrentPage();
+    return currentPage.meta.currentMap as string | undefined;
+  }, [editor]);
 
   const handleMapChange = (newMapName: string) => {
     const currentPageId = editor.getCurrentPageId();
@@ -37,19 +43,22 @@ export function MapSelector() {
             type="icon"
             className="tlui-map-selector__trigger tlui-menu__trigger flex-none"
           >
-            <div className="tlui-page-menu__name">Select Map</div>
+            <div className="tlui-page-menu__name">
+              {currentMap ? MAPS[currentMap] : 'Select Map'}
+            </div>
             <TldrawUiButtonIcon icon="chevron-down" />
           </TldrawUiButton>
         </TldrawUiDropdownMenuTrigger >
         <TldrawUiDropdownMenuContent align="start" sideOffset={4}>
           <TldrawUiDropdownMenuGroup>
-            {MAP_OPTIONS.map((option) => (
-              <TldrawUiDropdownMenuItem key={option.value}>
+            {Object.keys(MAPS).map((map) => (
+              <TldrawUiDropdownMenuItem key={map}>
                 <TldrawUiButton
                   type="menu"
-                  onClick={() => handleMapChange(option.value)}
+                  onClick={() => handleMapChange(map)}
                 >
-                  <span className="tlui-button__label">{option.label}</span>
+                  <span className="tlui-button__label">{MAPS[map]}</span>
+                  {currentMap === map && <TldrawUiButtonIcon icon="check" />}
                 </TldrawUiButton>
               </TldrawUiDropdownMenuItem>
             ))}

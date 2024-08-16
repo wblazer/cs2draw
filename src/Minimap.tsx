@@ -1,6 +1,7 @@
 import {
   Editor,
   AssetRecordType,
+  TLAsset,
   TLAssetId,
   createShapeId,
   TLImageShape,
@@ -18,13 +19,13 @@ import de_nuke from './assets/maps/de_nuke.png';
 import de_overpass from './assets/maps/de_overpass.png';
 
 const MAP_ASSETS: Record<string, string> = {
-  de_dust2,
   de_mirage,
   de_ancient,
   de_anubis,
   de_vertigo,
   de_inferno,
   de_nuke,
+  de_dust2,
   de_overpass,
 };
 
@@ -33,9 +34,10 @@ export const Minimap = {
     const page = editor.getPage(pageId)
     if (!page) return
 
+    // If there's a map already on the page, do nothing
     const existingMapShapeId = page.meta.mapShapeId as TLShapeId | undefined
     if (existingMapShapeId) {
-      console.log("Already a map on this page, skipping map creation: " + existingMapShapeId)
+      Minimap.ensureMapStaysLocked(editor, existingMapShapeId)
       return
     }
 
@@ -58,7 +60,6 @@ export const Minimap = {
     if (!page) return
 
     const mapShapeId = page.meta.mapShapeId as TLShapeId | undefined
-    console.log(mapShapeId)
 
     if (mapShapeId) {
       const newAssetId = Minimap.createMapAsset(editor, newMapName)
@@ -77,12 +78,19 @@ export const Minimap = {
         meta: { currentMap: newMapName, mapShapeId: mapShapeId }
       })
     } else {
-      console.warn('No map found on page, creating new one')
       Minimap.addToPage(editor, pageId, newMapName)
     }
   },
 
   createMapAsset: (editor: Editor, mapName: string): TLAssetId => {
+    // First check if the map asset is in the store so we can reuse it
+    const editorAssets: TLAsset[] = editor.getAssets()
+    const existingMapAsset: TLAsset | undefined = editorAssets.find(asset => asset.props?.src === MAP_ASSETS[mapName])
+    if (existingMapAsset) {
+      return existingMapAsset.id
+    }
+
+    // Else, create a new asset
     const assetId = AssetRecordType.createId()
     editor.createAssets([
       {
@@ -100,7 +108,6 @@ export const Minimap = {
         },
       },
     ])
-    console.log("Created map asset with src:", MAP_ASSETS[mapName], "and id:", assetId)
     return assetId
   },
 
@@ -120,7 +127,6 @@ export const Minimap = {
       },
     })
     editor.sendToBack([shapeId])
-    console.log("Created map shape")
     return shapeId
   },
 
@@ -128,9 +134,6 @@ export const Minimap = {
     editor.sideEffects.registerBeforeChangeHandler(
       'shape',
       (prev, next) => {
-        console.log("In ensureMapStaysLocked")
-        console.log(prev)
-        console.log(next)
         if (next.id !== shapeId) return next
         if (next.isLocked) return next
         return { ...prev, isLocked: true }
