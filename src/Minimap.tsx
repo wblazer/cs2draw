@@ -36,7 +36,7 @@ export const Minimap = {
     const page = editor.getPage(pageId)
     if (!page) return
 
-    // If there's a map already on the page, do nothing
+    // If there's a map already on the page, lock it and return
     const existingMapShapeId = page.meta.mapShapeId as TLShapeId | undefined
     if (existingMapShapeId) {
       Minimap.ensureMapStaysLocked(editor, existingMapShapeId)
