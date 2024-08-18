@@ -32,8 +32,12 @@ export function MapSelector() {
   }, [editor]);
 
   const handleMapChange = (newMapName: string) => {
-    const currentPageId = editor.getCurrentPageId();
-    Minimap.updateOnPage(editor, currentPageId, newMapName);
+    editor.run(
+      () => {
+        const currentPageId = editor.getCurrentPageId();
+        Minimap.updateOnPage(editor, currentPageId, newMapName);
+      }, { ignoreShapeLock: true, history: 'ignore' }
+    )
   };
 
   return (

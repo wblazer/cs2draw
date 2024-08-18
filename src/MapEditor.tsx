@@ -23,7 +23,11 @@ export function MapEditor() {
 
     const handlePageCreate = (page: TLPage) => {
       const map = editor.getCurrentPage().meta.currentMap as string || 'de_mirage'
-      Minimap.addToPage(editor, page.id, map)
+      editor.run(
+        () => {
+          Minimap.addToPage(editor, page.id, map)
+        }, { history: 'ignore' }
+      )
       // TODO: Find better way to ensure camera gets reset once minimap is loaded
       setTimeout(() => {
         resetCamera(editor)
@@ -49,7 +53,7 @@ export function MapEditor() {
         bounds: { w: 2048, h: 2048, x: 0, y: 0 },
         padding: { x: 64, y: 64 },
         origin: { x: 0.5, y: 0.5 },
-        behavior: 'outside',
+        behavior: 'free',
       },
       zoomSteps: [0.25, 0.5, 1, 2, 4, 8],
       zoomSpeed: 1,

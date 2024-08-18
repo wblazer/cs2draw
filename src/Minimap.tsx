@@ -18,6 +18,7 @@ import de_inferno from './assets/maps/de_inferno.png';
 import de_nuke from './assets/maps/de_nuke.png';
 import de_overpass from './assets/maps/de_overpass.png';
 
+// Using null as src for the asset for a blank canvas to avoid messy conditionals everywhere for blank canvas option
 const MAP_ASSETS: Record<string, string | null> = {
   de_mirage,
   de_ancient,
@@ -42,18 +43,13 @@ export const Minimap = {
       return
     }
 
-    editor.run(
-      () => {
-        const assetId = Minimap.createMapAsset(editor, mapName)
-        const mapShapeId = Minimap.createMapShape(editor, pageId, assetId)
-        Minimap.ensureMapStaysLocked(editor, mapShapeId)
-        editor.updatePage({
-          id: pageId,
-          meta: { currentMap: mapName, mapShapeId: mapShapeId }
-        })
-      },
-      { history: 'ignore' }
-    )
+    const assetId = Minimap.createMapAsset(editor, mapName)
+    const mapShapeId = Minimap.createMapShape(editor, pageId, assetId)
+    Minimap.ensureMapStaysLocked(editor, mapShapeId)
+    editor.updatePage({
+      id: pageId,
+      meta: { currentMap: mapName, mapShapeId: mapShapeId }
+    })
   },
 
   updateOnPage: (editor: Editor, pageId: TLPageId, newMapName: string) => {
@@ -65,14 +61,11 @@ export const Minimap = {
     if (mapShapeId) {
       const newAssetId = Minimap.createMapAsset(editor, newMapName)
 
-      editor.run(() => {
-        editor.updateShape<TLImageShape>({
-          id: mapShapeId,
-          type: 'image',
-          props: { assetId: newAssetId }
-        })
-      }, { ignoreShapeLock: true, history: 'ignore' }
-      )
+      editor.updateShape<TLImageShape>({
+        id: mapShapeId,
+        type: 'image',
+        props: { assetId: newAssetId }
+      })
 
       editor.updatePage({
         id: pageId,
