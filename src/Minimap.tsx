@@ -18,7 +18,7 @@ import de_inferno from './assets/maps/de_inferno.png';
 import de_nuke from './assets/maps/de_nuke.png';
 import de_overpass from './assets/maps/de_overpass.png';
 
-const MAP_ASSETS: Record<string, string> = {
+const MAP_ASSETS: Record<string, string | null> = {
   de_mirage,
   de_ancient,
   de_anubis,
@@ -27,6 +27,7 @@ const MAP_ASSETS: Record<string, string> = {
   de_nuke,
   de_dust2,
   de_overpass,
+  blank: null,
 };
 
 export const Minimap = {

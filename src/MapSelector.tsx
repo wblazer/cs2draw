@@ -20,6 +20,7 @@ const MAPS: Record<string, string> = {
   'de_nuke': 'Nuke',
   'de_dust2': 'Dust II',
   'de_overpass': 'Overpass',
+  'blank': 'Blank',
 };
 
 export function MapSelector() {
