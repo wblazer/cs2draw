@@ -27,12 +27,11 @@ export function MapEditor() {
       editor.run(
         () => {
           Minimap.addToPage(editor, page.id, mapName)
+          setTimeout(() => {
+            resetCamera(editor)
+          }, 10)
         }, { history: 'ignore' }
       )
-      // TODO: Find better way to ensure camera gets reset once minimap is loaded
-      setTimeout(() => {
-        resetCamera(editor)
-      }, 10)
     }
 
     // Attach handlers to page create events
@@ -44,6 +43,7 @@ export function MapEditor() {
     editor.run(
       () => {
         lockExistingMaps(editor)
+        resetCamera(editor)
       }
     )
   }, [editor])

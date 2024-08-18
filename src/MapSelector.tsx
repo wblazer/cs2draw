@@ -7,6 +7,7 @@ import {
   TldrawUiDropdownMenuItem,
   TldrawUiButton,
   TldrawUiButtonIcon,
+  TLPage,
   useValue,
 } from 'tldraw';
 import { Minimap } from './Minimap';
@@ -24,18 +25,18 @@ const MAPS: Record<string, string> = {
 };
 
 export function MapSelector() {
-  const editor = useEditor();
+  const editor = useEditor()
 
   const currentMap = useValue('current map', () => {
-    const currentPage = editor.getCurrentPage();
-    return currentPage.meta.currentMap as string | undefined;
+    const currentPage: TLPage = editor.getCurrentPage()
+    return currentPage.meta.currentMap as string | undefined
   }, [editor]);
 
   const handleMapChange = (newMapName: string) => {
     editor.run(
       () => {
-        const currentPageId = editor.getCurrentPageId();
-        Minimap.updateOnPage(editor, currentPageId, newMapName);
+        const currentPageId = editor.getCurrentPageId()
+        Minimap.updateOnPage(editor, currentPageId, newMapName)
       }, { ignoreShapeLock: true, history: 'ignore' }
     )
   };
