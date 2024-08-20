@@ -8,6 +8,7 @@ import {
 } from 'tldraw'
 import { Minimap } from './Minimap'
 import { MapSelector } from './MapSelector'
+import { CustomMainMenu } from './CustomMainMenu'
 
 export function MapEditor() {
   const [editor, setEditor] = useState<Editor | null>(null)
@@ -88,6 +89,7 @@ export function MapEditor() {
 
   const components: TLComponents = {
     TopPanel: MapSelector,
+    MainMenu: CustomMainMenu,
   }
 
   return (
