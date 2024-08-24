@@ -3,7 +3,7 @@ import {
   DefaultMainMenuContent,
   TldrawUiMenuGroup,
   TldrawUiMenuItem,
-} from 'tldraw'
+} from "tldraw";
 
 export function CustomMainMenu() {
   return (
@@ -17,11 +17,11 @@ export function CustomMainMenu() {
             icon="external-link"
             readonlyOk
             onSelect={() => {
-              window.open('https://github.com/wblazer/cs2draw', '_blank')
+              window.open("https://github.com/wblazer/cs2draw", "_blank");
             }}
           />
         </TldrawUiMenuGroup>
       </div>
     </DefaultMainMenu>
-  )
+  );
 }

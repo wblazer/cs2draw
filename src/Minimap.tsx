@@ -1,22 +1,22 @@
 import {
-  Editor,
   AssetRecordType,
+  createShapeId,
+  Editor,
   TLAsset,
   TLAssetId,
-  createShapeId,
   TLImageShape,
-  TLShapeId,
   TLPageId,
-} from 'tldraw'
+  TLShapeId,
+} from "tldraw";
 
-import de_dust2 from './assets/maps/de_dust2.png';
-import de_mirage from './assets/maps/de_mirage.png';
-import de_ancient from './assets/maps/de_ancient.png';
-import de_anubis from './assets/maps/de_anubis.png';
-import de_vertigo from './assets/maps/de_vertigo.png';
-import de_inferno from './assets/maps/de_inferno.png';
-import de_nuke from './assets/maps/de_nuke.png';
-import de_overpass from './assets/maps/de_overpass.png';
+import de_ancient from "./assets/maps/de_ancient.png";
+import de_anubis from "./assets/maps/de_anubis.png";
+import de_dust2 from "./assets/maps/de_dust2.png";
+import de_inferno from "./assets/maps/de_inferno.png";
+import de_mirage from "./assets/maps/de_mirage.png";
+import de_nuke from "./assets/maps/de_nuke.png";
+import de_overpass from "./assets/maps/de_overpass.png";
+import de_vertigo from "./assets/maps/de_vertigo.png";
 
 // Using null as src for the asset for a blank canvas to avoid messy conditionals everywhere for blank canvas option
 const MAP_ASSETS: Record<string, string | null> = {
@@ -33,105 +33,108 @@ const MAP_ASSETS: Record<string, string | null> = {
 
 export const Minimap = {
   addToPage: (editor: Editor, pageId: TLPageId, mapName: string) => {
-    const page = editor.getPage(pageId)
-    if (!page) return
+    const page = editor.getPage(pageId);
+    if (!page) return;
 
     // If there's a map already on the page, lock it and return
-    const existingMapShapeId = page.meta.mapShapeId as TLShapeId | undefined
+    const existingMapShapeId = page.meta.mapShapeId as TLShapeId | undefined;
     if (existingMapShapeId) {
-      Minimap.ensureMapStaysLocked(editor, existingMapShapeId)
-      return
+      Minimap.ensureMapStaysLocked(editor, existingMapShapeId);
+      return;
     }
 
-    const assetId = Minimap.createMapAsset(editor, mapName)
-    const mapShapeId = Minimap.createMapShape(editor, pageId, assetId)
-    Minimap.ensureMapStaysLocked(editor, mapShapeId)
+    const assetId = Minimap.createMapAsset(editor, mapName);
+    const mapShapeId = Minimap.createMapShape(editor, pageId, assetId);
+    Minimap.ensureMapStaysLocked(editor, mapShapeId);
     editor.updatePage({
       id: pageId,
-      meta: { currentMap: mapName, mapShapeId: mapShapeId }
-    })
+      meta: { currentMap: mapName, mapShapeId: mapShapeId },
+    });
   },
 
   updateOnPage: (editor: Editor, pageId: TLPageId, newMapName: string) => {
-    const page = editor.getPage(pageId)
-    if (!page) return
+    const page = editor.getPage(pageId);
+    if (!page) return;
 
-    const mapShapeId = page.meta.mapShapeId as TLShapeId | undefined
+    const mapShapeId = page.meta.mapShapeId as TLShapeId | undefined;
 
     if (mapShapeId) {
-      const newAssetId = Minimap.createMapAsset(editor, newMapName)
+      const newAssetId = Minimap.createMapAsset(editor, newMapName);
 
       editor.updateShape<TLImageShape>({
         id: mapShapeId,
-        type: 'image',
-        props: { assetId: newAssetId }
-      })
+        type: "image",
+        props: { assetId: newAssetId },
+      });
 
       editor.updatePage({
         id: pageId,
-        meta: { currentMap: newMapName, mapShapeId: mapShapeId }
-      })
+        meta: { currentMap: newMapName, mapShapeId: mapShapeId },
+      });
     } else {
-      Minimap.addToPage(editor, pageId, newMapName)
+      Minimap.addToPage(editor, pageId, newMapName);
     }
   },
 
   createMapAsset: (editor: Editor, mapName: string): TLAssetId => {
     // First check if the map asset is in the store so we can reuse it
-    const editorAssets: TLAsset[] = editor.getAssets()
-    const existingMapAsset: TLAsset | undefined = editorAssets.find(asset => asset.props?.src === MAP_ASSETS[mapName])
+    const editorAssets: TLAsset[] = editor.getAssets();
+    const existingMapAsset: TLAsset | undefined = editorAssets.find(
+      (asset) => asset.props?.src === MAP_ASSETS[mapName],
+    );
     if (existingMapAsset) {
-      return existingMapAsset.id
+      return existingMapAsset.id;
     }
 
     // Else, create a new asset
-    const assetId = AssetRecordType.createId()
+    const assetId = AssetRecordType.createId();
     editor.createAssets([
       {
         id: assetId,
-        type: 'image',
-        typeName: 'asset',
+        type: "image",
+        typeName: "asset",
         meta: {},
         props: {
           name: mapName,
           src: MAP_ASSETS[mapName],
-          mimeType: 'image/png',
+          mimeType: "image/png",
           w: 2048,
           h: 2048,
           isAnimated: false,
         },
       },
-    ])
-    return assetId
+    ]);
+    return assetId;
   },
 
-  createMapShape: (editor: Editor, pageId: TLPageId, assetId: TLAssetId): TLShapeId => {
-    const shapeId = createShapeId()
+  createMapShape: (
+    editor: Editor,
+    pageId: TLPageId,
+    assetId: TLAssetId,
+  ): TLShapeId => {
+    const shapeId = createShapeId();
     editor.createShape<TLImageShape>({
       id: shapeId,
-      type: 'image',
+      type: "image",
       x: 0,
       y: 0,
       isLocked: true,
       parentId: pageId,
       props: {
         assetId,
-        w: 2048,
-        h: 2048,
+        w: 900,
+        h: 900,
       },
-    })
-    editor.sendToBack([shapeId])
-    return shapeId
+    });
+    editor.sendToBack([shapeId]);
+    return shapeId;
   },
 
   ensureMapStaysLocked: (editor: Editor, shapeId: TLShapeId) => {
-    editor.sideEffects.registerBeforeChangeHandler(
-      'shape',
-      (prev, next) => {
-        if (next.id !== shapeId) return next
-        if (next.isLocked) return next
-        return { ...prev, isLocked: true }
-      }
-    )
+    editor.sideEffects.registerBeforeChangeHandler("shape", (prev, next) => {
+      if (next.id !== shapeId) return next;
+      if (next.isLocked) return next;
+      return { ...prev, isLocked: true };
+    });
   },
-}
+};
