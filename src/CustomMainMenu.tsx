@@ -1,14 +1,31 @@
 import {
   DefaultMainMenu,
-  DefaultMainMenuContent,
+  EditSubmenu,
+  ExportFileContentSubMenu,
+  ExtrasGroup,
+  KeyboardShortcutsMenuItem,
+  LanguageMenu,
   TldrawUiMenuGroup,
   TldrawUiMenuItem,
+  TldrawUiMenuSubmenu,
+  ToggleEdgeScrollingItem,
+  ToggleFocusModeItem,
+  ToggleGridItem,
+  ToggleReduceMotionItem,
+  ToggleSnapModeItem,
+  ToggleToolLockItem,
+  ToggleWrapModeItem,
+  ViewSubmenu,
 } from "tldraw";
 
 export function CustomMainMenu() {
   return (
     <DefaultMainMenu>
-      <DefaultMainMenuContent />
+      <EditSubmenu />
+      <ViewSubmenu />
+      <ExportFileContentSubMenu />
+      <ExtrasGroup />
+      <CustomPreferencesGroup />
       <div>
         <TldrawUiMenuGroup id="example">
           <TldrawUiMenuItem
@@ -23,5 +40,25 @@ export function CustomMainMenu() {
         </TldrawUiMenuGroup>
       </div>
     </DefaultMainMenu>
+  );
+}
+
+function CustomPreferencesGroup() {
+  return (
+    <TldrawUiMenuGroup id="preferences">
+      <TldrawUiMenuSubmenu id="preferences" label="menu.preferences">
+        <TldrawUiMenuGroup id="preferences-actions">
+          <ToggleSnapModeItem />
+          <ToggleToolLockItem />
+          <ToggleGridItem />
+          <ToggleWrapModeItem />
+          <ToggleFocusModeItem />
+          <ToggleEdgeScrollingItem />
+          <ToggleReduceMotionItem />
+        </TldrawUiMenuGroup>
+      </TldrawUiMenuSubmenu>
+      <LanguageMenu />
+      <KeyboardShortcutsMenuItem />
+    </TldrawUiMenuGroup>
   );
 }
